@@ -19,7 +19,7 @@ Pantheon offers a chocie of two algorithms:
     1) a simple, but fast first order [leap-frog alogrithm](https://en.wikipedia.org/wiki/Leapfrog_integration),
     2) and the much more accurate but slower [Position Extended Forest-Ruth Like](https://arxiv.org/abs/cond-mat/0110585) algorithm.
 
-    Both algorithms are symplectic and have the _big_ advantage that numerical errors typically do not accumulating over time. As a consequence ssymplectic integration schemes are well suited for simulations ofer extended periods of time and where inherent system stablity is to be maintained.
+    Both algorithms are symplectic and have the _big_ advantage that numerical errors typically do not accumulating over time. As a consequence symplectic integration schemes are well suited for simulations ofer extended periods of time and where inherent system stablity is to be maintained.
 + _How fast is Pantheon?_
 Time is relative. The time required to perform any given simulation depends very much on the complexity of the system, the number of time steps, the algorithm, and of course machine specs. That being said, for simple systems such as our sun and its eight planets a period of a thousand years is calculated within few minutes or less. It should be kept in mind though that Pantheon's simulation code is hardly optimized and that if speed as of utmost importance, a more professional set of tools is what you are looking for - likely at the expense of the accessibility provided by Pantheon.
 + _My orbits look more like a Spirograph pattern than the ellipses I was expecting. What am I doing wrong?_
