@@ -1,7 +1,6 @@
 __Note:__ unfortunatley a binary can currently not be provided due to a [bug](https://github.com/pyinstaller/pyinstaller/issues/2426) in pyinstaller.
 
 # Pantheon
----
 Pantheon is an orbital mechanics simulation tool with an easy to use user interface. It allows to quickly verify the stability of systems of celestial bodies (e.g. stars, planets and moons) over extend time periods. With the integrated plotting capability simulation results can be visualized and studied without the need for any external software.
 ![Pantheon](Pantheon.png "Pantheon's user interface")
 
