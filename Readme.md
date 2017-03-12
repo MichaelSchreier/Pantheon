@@ -5,19 +5,19 @@ Pantheon is an orbital mechanics simulation tool with an easy to use user interf
 ![Pantheon](Pantheon.png "Pantheon's user interface")
 
 ### How to use Pantheon?
-1) In the _object settings_ tab an objects name, mass, initial position, and velocity are defined. If at least one other object has previously been added a primary, i.e. a reference object to which position and velocity will be relative to, can also be selected. 
+1. In the _object settings_ tab an objects name, mass, initial position, and velocity are defined. If at least one other object has previously been added a primary, i.e. a reference object to which position and velocity will be relative to, can also be selected. 
 By pressing the __add__ button the object is registered and will be displayed in the object tree on the left.
 A sample file containing the sun and its eight planets can also be loaded via _File -> Load -> example_objects_sol.dat_
-2) In the _simulation settings_ the time step, total time, and number of time steps for the simulation can be defined. The default is a total of 365 time steps of a day each. If memory or (plot) performance become an issue, there is also the option to only keep every nth (with n selectable by the user; default is 1) time step in the final result. If desired, the simulation can also be executed on the GPU via OpenCL. Lastly, the numerical algorithm can be changed here.
+2. In the _simulation settings_ the time step, total time, and number of time steps for the simulation can be defined. The default is a total of 365 time steps of a day each. If memory or (plot) performance become an issue, there is also the option to only keep every nth (with n selectable by the user; default is 1) time step in the final result. If desired, the simulation can also be executed on the GPU via OpenCL. Lastly, the numerical algorithm can be changed here.
 By pressing the __run simulation__ button the simulation is started.
-3) The _plot settings_ tab allows to choose the plot plane (XY, XZ, YZ), as well as rearrange the simulation results to be plotted relative to the motion of any of the simulated objects. This is often necessary for simulations over longer periods of time as the system as a whole will frequently drift with respect to the lab frame, caused by the nonvanishing total momentum of the system. In such cases choosing the central object (e.g. the main star) as the new plot origin will fix the issue.
+3. The _plot settings_ tab allows to choose the plot plane (XY, XZ, YZ), as well as rearrange the simulation results to be plotted relative to the motion of any of the simulated objects. This is often necessary for simulations over longer periods of time as the system as a whole will frequently drift with respect to the lab frame, caused by the nonvanishing total momentum of the system. In such cases choosing the central object (e.g. the main star) as the new plot origin will fix the issue.
 At any point the plot can be set to the desired parameters by pressing the __update plot__ button.
 
 ### FAQs
 + _What algorithm is Pantheon using?_
 Pantheon offers a chocie of two algorithms:
-    1) a simple, but fast first order [leap-frog alogrithm](https://en.wikipedia.org/wiki/Leapfrog_integration),
-    2) and the much more accurate but slower [Position Extended Forest-Ruth Like](https://arxiv.org/abs/cond-mat/0110585) algorithm.
+    1. a simple, but fast first order [leap-frog alogrithm](https://en.wikipedia.org/wiki/Leapfrog_integration),
+    2. and the much more accurate but slower [Position Extended Forest-Ruth Like](https://arxiv.org/abs/cond-mat/0110585) algorithm.
 
     Both algorithms are symplectic and have the _big_ advantage that numerical errors typically do not accumulating over time. As a consequence symplectic integration schemes are well suited for simulations ofer extended periods of time and where inherent system stablity is to be maintained.
 + _How fast is Pantheon?_
