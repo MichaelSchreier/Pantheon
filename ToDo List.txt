@@ -1,0 +1,2 @@
+-add trapist 1 file
+-switch spinboxes to lineedits and allow switching units

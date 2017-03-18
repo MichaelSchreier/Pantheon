@@ -12,6 +12,7 @@ A sample file containing the sun and its eight planets can also be loaded via _F
 By pressing the __run simulation__ button the simulation is started.
 3. The _plot settings_ tab allows to choose the plot plane (XY, XZ, YZ), as well as rearrange the simulation results to be plotted relative to the motion of any of the simulated objects. This is often necessary for simulations over longer periods of time as the system as a whole will frequently drift with respect to the lab frame, caused by the nonvanishing total momentum of the system. In such cases choosing the central object (e.g. the main star) as the new plot origin will fix the issue.
 At any point the plot can be set to the desired parameters by pressing the __update plot__ button.
+4. The _orbital analysis_ tab can be used to determine the orbital periods of the bodies around one another.
 
 ### FAQs
 + _What algorithm is Pantheon using?_
@@ -30,6 +31,8 @@ The issue is likely to be caused by a time step not small enough to accurately s
 To export any calculations results (images or raw data) right-click on the plot area and choose _Export..._
 + _Did you consider extending your simulation code to account for [insert feature]?_
 Pantheon's simulation code is indeed very simplistic and the implementation naive at times. However, Pantheon was never intended to be a full orbital mechanics suite but rather is intended to provide an accessible playground to test small scale systems in. That is not to say that more simulation features are not possible in future versions, however, they are currently not a priority.
++ _The orbital period I obtain from the orbital analysis tab is obviously wrong, what is going on?_
+The orbital periods calculated by Pantheon use the simulated orbits as input and are therefore only as accurate as the simulation itself. In particular, when only few full orbits have been calculated the results may be completely off. In most cases increasing the number of timesteps (i.e. the number of full orbits) will improve the results.
 
 ---
 ### Source dependencies

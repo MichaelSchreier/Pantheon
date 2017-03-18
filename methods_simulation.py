@@ -223,4 +223,4 @@ def threadedSimulation(
 			if queue_comm.empty():
 				queue_comm.put(i/time_steps*100)
 	
-	queue_data.put([name, position_out])
+	queue_data.put([name, [time_delta, skip_n], position_out])

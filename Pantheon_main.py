@@ -3,6 +3,8 @@ import os
 import psutil
 
 import numpy as np
+from scipy.fftpack import rfft, fftfreq
+
 import pyqtgraph as pg
 import pyopencl as cl
 
@@ -16,6 +18,7 @@ from class_AstronomicalObject import AstronomicalObject
 from class_UI_ParameterTab import ParameterTab
 from class_UI_SimulationTab import SimulationTab
 from class_UI_PlotTab import PlotTab
+from class_UI_AnalysisTab import AnalysisTab
 from class_UI_AboutWindow import aboutDialog
 
 #-----------------------------------------------------------------------
@@ -133,6 +136,9 @@ class PantheonCentralWidget(QtWidgets.QWidget):
 		#-------third container_tab-----------------------------------------------
 		self.tab_plot = PlotTab()
 		
+		#-------fourth container_tab----------------------------------------------
+		self.tab_analysis = AnalysisTab()
+		
 		
 		container_tab = QtWidgets.QTabWidget()
 		container_tab.setFixedHeight(250)
@@ -142,9 +148,12 @@ class PantheonCentralWidget(QtWidgets.QWidget):
 		tab2.setLayout(self.tab_simulation.layout_simulation_settings_container)
 		tab3 = QtWidgets.QWidget()
 		tab3.setLayout(self.tab_plot.layout_plot_settings)
+		tab4 = QtWidgets.QWidget()
+		tab4.setLayout(self.tab_analysis.layout)
 		container_tab.addTab(tab1, "object settings")
 		container_tab.addTab(tab2, "simulation settings")
 		container_tab.addTab(tab3, "plot settings")
+		container_tab.addTab(tab4, "orbital analysis")
 		
 		#pyqtgraph------------------------------------------------------
 		graph = pg.GraphicsLayoutWidget()
@@ -179,6 +188,7 @@ class PantheonCentralWidget(QtWidgets.QWidget):
 		self.tab_simulation.spinbox_time_steps.valueChanged.connect(self.adjustTotalTime)
 		self.tab_simulation.spinbox_total_time.valueChanged.connect(self.adjustDeltaTime)
 		self.tab_plot.button_update_plot.clicked.connect(self.updatePlot)
+		self.tab_analysis.button_calculate_period.clicked.connect(self.calculateOrbitalPeriod)
 	
 	
 	def adjustTotalTime(self):
@@ -437,6 +447,9 @@ class PantheonCentralWidget(QtWidgets.QWidget):
 			
 			
 	def enqueueSimulation(self):
+		"""
+		start separate thread that performs the simulation 
+		"""
 		threshold = (
 			int(
 				self.tab_simulation.spinbox_time_steps.value() / 
@@ -505,7 +518,7 @@ class PantheonCentralWidget(QtWidgets.QWidget):
 	
 	def updatePlot(self):
 		names = self.getPlotData()[0]
-		pos = np.copy(self.getPlotData()[1])
+		pos = np.copy(self.getPlotData()[2])
 		self.plot.clear()
 		#rudimentary fix to reset legend--------------------------------
 		self.plot.legend.nodes = []
@@ -557,7 +570,102 @@ class PantheonCentralWidget(QtWidgets.QWidget):
 		self.plot.enableAutoRange(enable = True)
 		
 		self.tab_plot.updateOrigin(names)
+		self.tab_analysis.updateAnalysisComboboxes(names)
+		self.tab_analysis.lineedit_orbital_period.setText("")
+	
+	def calculateOrbitalPeriod(self):
+		"""
+		calculates the orbital period of a satellite body around another by:
+			1) calculating the position over time of the satellite relative to the other body
+			2) choose the dimension (X, Y or Z)* where the satellite's position changes 
+			   the most over time
+			3) perform a FFT of the satellite's position data in that dimension
+			4) compare the frequencies/periods associated with the 10 largest peaks in the 
+			   FFT-spectrum by calculating the average position mismatch for all possible
+			   multiples of that period
+			5) the period with the smallest average error is returned as the most likely
+			   period
 		
+		* a more intelligent approach would calculate/approximate the plane in which the
+		  object moves and determine the "most suitable" axis for calculating the FFT
+		  from a projection of the original data on the plane of motion.
+		"""
+		
+		msg = "unable to determine orbital period"
+		
+		#disallow calculations if central body and satellite are identical or empty
+		if (
+			self.tab_analysis.combobox_central_body.currentText() != 
+			self.tab_analysis.combobox_satellite_body.currentText() and
+			self.tab_analysis.combobox_central_body.count() > 0 and
+			self.tab_analysis.combobox_satellite_body.count() > 0
+		):
+			names = self.getPlotData()[0]
+			timestep = self.getPlotData()[1][0] * self.getPlotData()[1][1]
+			
+			index = names.index(self.tab_analysis.combobox_central_body.currentText())
+			pos_central_body = np.copy([ x[index] for x in self.getPlotData()[2] ])
+			
+			index = names.index(self.tab_analysis.combobox_satellite_body.currentText())
+			pos_satellite_body = np.copy([ x[index] for x in self.getPlotData()[2] ])
+			
+			#calculate motion relative to selected origin
+			for i in range(len(pos_central_body)):
+				pos_satellite_body[i] -= pos_central_body[i]
+			
+			#determine position component that changes the most
+			comp_max = 0
+			mag_max = 0
+			for i in range(3):
+				tmp = abs(
+					max([x[i] for x in pos_satellite_body]) - 
+					min([x[i] for x in pos_satellite_body])
+				)
+				if tmp > mag_max:
+					mag_max = tmp
+					comp_max = i
+			
+			pos_satellite_body_comp_max = [x[comp_max] for x in pos_satellite_body]
+			
+			#FFT
+			frequency_values = fftfreq(len(pos_satellite_body_comp_max), d=timestep)
+			frequency_magnitude = np.absolute(rfft(pos_satellite_body_comp_max))
+			
+			#get the 10 most likely candidates for the orbital period 
+			max_val_indexes = np.argpartition(frequency_magnitude, -10)[-10:]
+			
+			#compare errors for each of the 10 candidates
+			comp_min = -1
+			comp_error = mag_max / 2.0
+			for i in max_val_indexes:
+				tmp_period = 2.0 / frequency_values[i] / timestep
+				if tmp_period <= len(pos_satellite_body) and tmp_period > 0:
+					num_periods = int(len(pos_satellite_body) / tmp_period)
+					period_indexes = [int(tmp_period * x) for x in list(range(num_periods+1))[1:]]
+					if period_indexes[-1] >= len(pos_satellite_body):
+						del period_indexes[-1]
+					if len(period_indexes) > 0:
+						tmp = 0
+						for j in period_indexes:
+							tmp += np.linalg.norm(np.array(pos_satellite_body[j]) - np.array(pos_satellite_body[0]))
+						tmp /= len(period_indexes)
+						if tmp < comp_error:
+							comp_min = i
+							comp_error = tmp
+			
+			if comp_min > 0:
+				period_seconds = 2.0 / frequency_values[comp_min]
+				period_days = period_seconds / 86400.0
+				period_years = period_days / 365.0
+				
+				msg = (
+					str(period_seconds) + " s ≡ " + 
+					str(period_days) + " d ≡ " + 
+					str(period_years) + " a"
+			)
+		
+		self.tab_analysis.lineedit_orbital_period.setText(msg)
+
 		
 def main():
 	app = QtWidgets.QApplication(sys.argv)

@@ -8,7 +8,7 @@ class PlotTab():
 		#UI elements----------------------------------------------------
 		self.combobox_plot_origin = QtWidgets.QComboBox()
 		label_plot_origin = QtWidgets.QLabel("plot motion relative to")
-		self.updateOrigin([])
+		self.updateOrigin()
 		
 		self.combobox_plot_plane = QtWidgets.QComboBox()
 		self.combobox_plot_plane.addItem("XY")
@@ -28,7 +28,7 @@ class PlotTab():
 		self.layout_plot_settings.addWidget(self.button_update_plot)
 		
 		
-	def updateOrigin(self, plotobjects):
+	def updateOrigin(self, plotobjects=[]):
 		"""
 		refreshes the list of possible plot origins
 		"""
