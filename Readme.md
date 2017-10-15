@@ -36,7 +36,7 @@ The orbital periods calculated by Pantheon use the simulated orbits as input and
 
 ---
 ### Source dependencies
-Pantheon is built on Python 3 as well the following libraries:
+Pantheon is built on Python 3 as well as the following libraries:
 + [PyQt5](https://www.riverbankcomputing.com/software/pyqt/download5) for the UI as well as some other features
 + [PyQtGraph](http://www.pyqtgraph.org) for the interactive plot of the simulation results
   + __Note:__ For Qt5 compatibility the current [development version](https://github.com/pyqtgraph/pyqtgraph) rather than the latest official release (0.10.0) has to be used. However, as of March 2017 PyQtGraph's custom SpinBox class which is used in Pantheon appears to be broken in the development version. This can be remedied by falling back on the latest official version of this file instead.
